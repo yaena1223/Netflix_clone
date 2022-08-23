@@ -1,84 +1,74 @@
-import axios from '../api/axios';
-import { useEffect, useState } from 'react';
+import axios from "../api/axios";
+import { useEffect, useState } from "react";
 import requests from "../api/requests";
-import './Banner.css';
-import styled from 'styled-components';
+import "./Banner.css";
+import styled from "styled-components";
 
 export default function Banner() {
     const [movie, setMovie] = useState([]);
     const [isClicked, setIsClicked] = useState(false);
 
-    const truncate = (str, n)=>{
-        return str?.length > n? str.substr(0,n-1) + "..." : str;
+    const truncate = (str, n) => {
+        return str?.length > n ? str.substr(0, n - 1) + "..." : str;
     };
-    useEffect(()=> {
+    useEffect(() => {
         fetchData();
-    },[])
+    }, []);
 
     const fetchData = async () => {
         const request = await axios.get(requests.fetchNowPlaying);
-        console.log(request)
-        const movieId = request.data.results[
-            Math.floor(Math.random() * request.data.results.length)
-        ].id;
-    
-    const { data:movieDetail } = await axios.get(`movie/${movieId}`,{
-        params:{append_to_response : "videos"},
-    })
-    setMovie(movieDetail)
+        console.log(request);
+        const movieId =
+            request.data.results[Math.floor(Math.random() * request.data.results.length)].id;
 
-    }
-    if(!isClicked){
-        return(
-            <header className = "banner"
-            style={{
-                backgroundImage : `url("https://image.tmdb.org/t/p/original/${movie.backdrop_path}")`,
-                backgroundPosition : "top center",
-                backgroundSize : "cover"
-    
-            }}>
-    
-                <div className = "banner__contents">
-                    <h1 className = "banner_title">
+        const { data: movieDetail } = await axios.get(`movie/${movieId}`, {
+            params: { append_to_response: "videos" },
+        });
+        setMovie(movieDetail);
+    };
+    if (!isClicked) {
+        return (
+            <header
+                className="banner"
+                style={{
+                    backgroundImage: `url("https://image.tmdb.org/t/p/original/${movie.backdrop_path}")`,
+                    backgroundPosition: "top center",
+                    backgroundSize: "cover",
+                }}
+            >
+                <div className="banner__contents">
+                    <h1 className="banner_title">
                         {movie.title || movie.name || movie.original_name}
                     </h1>
-                    <div className='banner__buttons'>
-                        <button className='banner__button play'
-                        onClick={()=> setIsClicked(true)}>
+                    <div className="banner__buttons">
+                        <button className="banner__button play" onClick={() => setIsClicked(true)}>
                             Play
                         </button>
-                        <button className='banner__button info'>More Information</button>
+                        <button className="banner__button info">More Information</button>
                     </div>
-                    <h1 className='banner__description'>{truncate(movie?.overview,100)}</h1>
+                    <h1 className="banner__description">{truncate(movie?.overview, 100)}</h1>
                 </div>
-                <h1 className='banner--fadeBottom'></h1>
-    
+                <h1 className="banner--fadeBottom"></h1>
             </header>
-           
-        )
+        );
+    } else {
+        return (
+            <Container>
+                <HomeContainer>
+                    <Iframe
+                        width="640"
+                        height="360"
+                        src={`https://www.youtube.com/embed/${movie.videos.results[0].key}?
+                        controls=&autoplay=1&loop=1&mute=1&playlist=${movie.videos.results[0].key}`}
+                        title="Youtube video player"
+                        frameborder="0"
+                        allow="autoplay:fullscreen"
+                        allowfullscreen
+                    ></Iframe>
+                </HomeContainer>
+            </Container>
+        );
     }
-   else{
-    return(
-        <Container>
-            <HomeContainer>
-                <Iframe
-                    width = "640"
-                    height="360"
-                    src={
-                        `https://www.youtube.com/embed/${movie.videos.results[0].key}?
-                        controls=&autoplay=1&loop=1&mute=1&playlist=${movie.videos.results[0].key}`
-                    }
-                    title="Youtube video player"
-                    frameborder = "0"
-                    allow = "autoplay:fullscreen"
-                    allowfullscreen 
-                    >
-
-                </Iframe>
-            </HomeContainer>
-        </Container>
-    );
-   }
 }
 
 const Iframe = styled.iframe`
@@ -89,7 +79,7 @@ const Iframe = styled.iframe`
     border: none;
 
     &::after {
-        content: '';
+        content: "";
         position: absolute;
         top: 0;
         left: 0;
@@ -111,4 +101,3 @@ const HomeContainer = styled.div`
     width: 100%;
     height: 100%;
 `;
-
